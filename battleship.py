@@ -21,20 +21,22 @@ PrevIAShoots = []
 
 def main():
   strategyOne = []
+  strategyTwo= []
+  strategyTheee = []
   for a in range(10000):
-    clear_board(gridPlayerA) 
-    clear_board(gridPlayerB)
-    clear_board(gridPlayerC)
-    clear_board(gridGamePlayerA) 
-    clear_board(gridGamePlayerB)
-    clear_board(gridGamePlayerC)
+    ClearBoard(gridPlayerA) 
+    ClearBoard(gridPlayerB)
+    ClearBoard(gridPlayerC)
+    ClearBoard(gridGamePlayerA) 
+    ClearBoard(gridGamePlayerB)
+    ClearBoard(gridGamePlayerC)
     PrevPlayerShoots = []
     PrevIAShoots = [] 
 
     
     put_boats(gridPlayerA)#put IA's boats randomly
     while sum(gridPlayerA) != 14:
-      clear_board(gridPlayerA) 
+      ClearBoard(gridPlayerA) 
       put_boats(gridPlayerA)
 
     gridPlayerB = copy.deepcopy(gridPlayerA)
@@ -47,7 +49,12 @@ def main():
     strategyOne.append(result)
 
   strategyOne = numpy.asarray(strategyOne)
-  print(numpy.mean(strategyOne, axis=0))
+  strategyTwo = numpy.asarray(strategyTwo)
+  strategyThree = numpy.asarray(strategyThree)
+  print("1: ", numpy.mean(strategyOne), numpy.std(strategyOne))
+  print("2: ", numpy.mean(strategyTwo), numpy.std(strategyTwo))
+  print("3: ", numpy.mean(strategyThree), numpy.std(strategyThree))
+  PlotStuff(strategyOne, strategyTwo, strategyThree)
   #print(result)
 
 def SingleMatch():
@@ -56,11 +63,11 @@ def SingleMatch():
       
     PrevPlayerShoots = []
     PrevIAShoots = [] 
-    clear_board(gridPlayerA)
+    ClearBoard(gridPlayerA)
     put_boats(gridPlayerA)#put IA's boats randomly
 
-    while sum(gridPlayerA) != 14:
-      clear_board(gridPlayerA) 
+    while sum(gridPlayerA) != 14: # 5 + 4 + 3 + 2 = 14
+      ClearBoard(gridPlayerA) 
       put_boats(gridPlayerA)
       #print(sum(gridPlayerA))
 
@@ -75,7 +82,7 @@ def SingleMatch():
         # for i in range(10):
         #   print(gridGamePlayerA[i*10:i*10+10]) 
         Player_Shoot = temp
-        if can_shoot(PrevPlayerShoots, Player_Shoot) == True: 
+        if CanShoot(PrevPlayerShoots, Player_Shoot) == True: 
             #print(Player_Shoot)
             if gridPlayerA[Player_Shoot] == 1: 
                 shoot_Touched(gridGamePlayerA, Player_Shoot) # call the shoot function that replace the coord by an F on the empty board
@@ -86,7 +93,7 @@ def SingleMatch():
                 shoot(gridGamePlayerA, Player_Shoot)
                 #print("missed, IA's turn : ")
                 IA_shot = random.randint(0, 99) 
-                while can_shoot(PrevIAShoots, IA_shot) == False:
+                while CanShoot(PrevIAShoots, IA_shot) == False:
                   IA_shot = random.randint(0, 99)
 
 
@@ -109,17 +116,17 @@ def SingleMatch():
 def ConseqStrategy(gridPlayerA):
     BoatTouchedByPlayer = 0      
     PrevPlayerShoots = []
-    # clear_board(gridPlayerA)
+    # ClearBoard(gridPlayerA)
     # put_boats(gridPlayerA)#put IA's boats randomly
 
     # while sum(gridPlayerA) != 14:
-    #   clear_board(gridPlayerA) 
+    #   ClearBoard(gridPlayerA) 
     #   put_boats(gridPlayerA)
 
     temp = 0
     while (BoatTouchedByPlayer < 14):
         Player_Shoot = temp
-        if can_shoot(PrevPlayerShoots, Player_Shoot) == True: 
+        if CanShoot(PrevPlayerShoots, Player_Shoot) == True: 
             if gridPlayerA[Player_Shoot] == 1: 
                 shoot_Touched(gridGamePlayerA, Player_Shoot) # call the shoot function that replace the coord by an F on the empty board
                 BoatTouchedByPlayer = BoatTouchedByPlayer + 1 # count until 14 (number of boat "parts")
@@ -140,7 +147,7 @@ def RandomStrategy(gridPlayerA):
     
     while (BoatTouchedByPlayer< 14):
         Player_Shoot = random.randint(0, 99) 
-        while can_shoot(PrevPlayerShoots, Player_Shoot) == False:
+        while CanShoot(PrevPlayerShoots, Player_Shoot) == False:
             Player_Shoot = random.randint(0, 99)
 
 
@@ -187,7 +194,7 @@ def Strat1(gridPlayerA):
         # for i in range(10):
         #   print(gridGamePlayerA[i*10:i*10+10]) 
         Player_Shoot = random.randint(0, 99)
-        while can_shoot(PrevPlayerShoots, Player_Shoot) == False:
+        while CanShoot(PrevPlayerShoots, Player_Shoot) == False:
             Player_Shoot = random.randint(0, 99)
         #last_shot = Player_Shoot
         if mode == "hunt":
@@ -215,7 +222,7 @@ def Strat1(gridPlayerA):
                 base_square = firstHuntSquare[-1]
                 
                 Player_Shoot = d_list[d_index] + base_square
-                while can_shoot(PrevPlayerShoots, Player_Shoot) == False:
+                while CanShoot(PrevPlayerShoots, Player_Shoot) == False:
                     print(d_index)
                     d_index += 1
                     Player_Shoot = d_list[d_index] + base_square
@@ -237,7 +244,7 @@ def Strat1(gridPlayerA):
                 print("current b4: ", current_square)
                 if dOpposite == False:
                     Player_Shoot = current_square + d_list[d_index]
-                    if can_shoot(PrevPlayerShoots, Player_Shoot) == False:
+                    if CanShoot(PrevPlayerShoots, Player_Shoot) == False:
                         d_index *= -1  # attacks in opposite direction
                         dOpposite = True
                         total_shots -= 1 # reduce a turn
@@ -254,7 +261,7 @@ def Strat1(gridPlayerA):
                 else: # if dopposite is true
                     
                     Player_Shoot = current_square + d_list[d_index]
-                    if can_shoot(PrevPlayerShoots, Player_Shoot) == False:
+                    if CanShoot(PrevPlayerShoots, Player_Shoot) == False:
                         mode = "hunt"
                     else:
                         if gridPlayerA[Player_Shoot] == 1:
@@ -299,7 +306,7 @@ def Strat2(gridPlayerA):
         # for i in range(10):
         #   print(gridGamePlayerA[i*10:i*10+10]) 
         Player_Shoot = random.randint(0, 99)
-        while can_shoot(PrevPlayerShoots, Player_Shoot) == False:
+        while CanShoot(PrevPlayerShoots, Player_Shoot) == False:
             Player_Shoot = random.randint(0, 99)
         #last_shot = Player_Shoot
         if mode == "hunt":
@@ -327,7 +334,7 @@ def Strat2(gridPlayerA):
                 base_square = firstHuntSquare[-1]
                 
                 Player_Shoot = d_list[d_index] + base_square
-                while can_shoot(PrevPlayerShoots, Player_Shoot) == False:
+                while CanShoot(PrevPlayerShoots, Player_Shoot) == False:
                     print(d_index)
                     d_index += 1
                     Player_Shoot = d_list[d_index] + base_square
@@ -349,7 +356,7 @@ def Strat2(gridPlayerA):
                 print("current b4: ", current_square)
                 if dOpposite == False:
                     Player_Shoot = current_square + d_list[d_index]
-                    if can_shoot(PrevPlayerShoots, Player_Shoot) == False:
+                    if CanShoot(PrevPlayerShoots, Player_Shoot) == False:
                         d_index *= -1  # attacks in opposite direction
                         dOpposite = True
                         total_shots -= 1 # reduce a turn
@@ -366,7 +373,7 @@ def Strat2(gridPlayerA):
                 else: # if dopposite is true
                     
                     Player_Shoot = current_square + d_list[d_index]
-                    if can_shoot(PrevPlayerShoots, Player_Shoot) == False:
+                    if CanShoot(PrevPlayerShoots, Player_Shoot) == False:
                         mode = "hunt"
                     else:
                         if gridPlayerA[Player_Shoot] == 1:
@@ -409,7 +416,7 @@ def End_Game(grid):
 
 
 
-def can_shoot(List, shot):
+def CanShoot(List, shot):
     for x in range(len(List)):#check if the shoot didnt already done
         if List[x] == shot:
             #print("you've already shoot here !")
@@ -439,7 +446,7 @@ def put_boat(length, x, y, direction, grid):
             position = x + 10*(y+i)
             grid[position] = 1
   
-def clear_board(grid):
+def ClearBoard(grid):
   for i in range(100):
     grid[i] = 0
             
